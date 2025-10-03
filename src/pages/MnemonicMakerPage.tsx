@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Brain, Zap, RefreshCw, Lightbulb, BookOpen, Sparkles as SparklesIcon, Target } from 'lucide-react';
 import { MnemonicMode } from '../types';
 import { generateMnemonic } from '../services/openRouterService';
@@ -7,6 +7,12 @@ import InputSection from '../components/InputSection';
 import ResultCard from '../components/ResultCard';
 import ThemeToggle from '../components/ThemeToggle';
 import ErrorMessage from '../components/ErrorMessage';
+import GitHubStarButton from '../components/GitHubStarButton';
+import GitHubStarModal from '../components/GitHubStarModal';
+
+const GITHUB_REPO_URL = 'https://github.com/yourusername/mnemonic-maker'; // Update with your repo
+const GENERATION_COUNT_KEY = 'mnemonic_generation_count';
+const STAR_MODAL_SHOWN_KEY = 'star_modal_shown';
 
 const MnemonicMakerPage: React.FC = () => {
   const [darkMode, setDarkMode] = useState(true);
@@ -15,6 +21,14 @@ const MnemonicMakerPage: React.FC = () => {
   const [result, setResult] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
+  const [generationCount, setGenerationCount] = useState(0);
+  const [showStarModal, setShowStarModal] = useState(false);
+
+  // Load generation count on mount
+  useEffect(() => {
+    const count = parseInt(localStorage.getItem(GENERATION_COUNT_KEY) || '0', 10);
+    setGenerationCount(count);
+  }, []);
 
   const handleGenerate = async () => {
     if (!input.trim()) {
@@ -29,6 +43,20 @@ const MnemonicMakerPage: React.FC = () => {
     try {
       const response = await generateMnemonic(input, mode);
       setResult(response.content);
+      
+      // Increment generation count
+      const newCount = generationCount + 1;
+      setGenerationCount(newCount);
+      localStorage.setItem(GENERATION_COUNT_KEY, newCount.toString());
+
+      // Show star modal after 3 generations (only once)
+      const modalShown = localStorage.getItem(STAR_MODAL_SHOWN_KEY);
+      if (newCount === 3 && !modalShown) {
+        setTimeout(() => {
+          setShowStarModal(true);
+          localStorage.setItem(STAR_MODAL_SHOWN_KEY, 'true');
+        }, 1000);
+      }
     } catch (err) {
       console.error('Error generating mnemonic:', err);
       setError(err instanceof Error ? err.message : 'Failed to generate mnemonic. Please try again.');
@@ -43,10 +71,18 @@ const MnemonicMakerPage: React.FC = () => {
     }
   };
 
+  const closeStarModal = () => {
+    setShowStarModal(false);
+  };
+
   return (
     <div className={`app ${darkMode ? 'dark' : 'light'}`}>
       <div className="container">
-        <ThemeToggle darkMode={darkMode} onToggle={() => setDarkMode(!darkMode)} />
+        {/* Header Controls */}
+        <div className="header-controls">
+          <GitHubStarButton repoUrl={GITHUB_REPO_URL} />
+          <ThemeToggle darkMode={darkMode} onToggle={() => setDarkMode(!darkMode)} />
+        </div>
 
         {/* Main Header */}
         <div className="main-header">
@@ -200,6 +236,13 @@ const MnemonicMakerPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* GitHub Star Modal */}
+      <GitHubStarModal 
+        isOpen={showStarModal} 
+        onClose={closeStarModal}
+        repoUrl={GITHUB_REPO_URL}
+      />
     </div>
   );
 };

@@ -38,24 +38,91 @@ interface OpenRouterResponse {
  */
 export const getMnemonicPrompt = (text: string, modeType: MnemonicMode): string => {
   const prompts: Record<MnemonicMode, string> = {
-    acrostic: `Create a mnemonic using the acrostic method for: "${text}". 
-    For each letter, provide a memorable word that starts with that letter. 
-    Make it creative, easy to remember, and meaningful. 
-    Format: Just provide the mnemonic phrase, nothing else.`,
+    acrostic: `Create 3 different acrostic mnemonics for: "${text}".
+
+For each mnemonic:
+
+Take each letter from the sequence of "${text}" (e.g., for "ABCDE", use A, B, C, D, E).
+
+Create a memorable single word for each letter.
+
+Add a brief description explaining how each word connects to the original sequence or concept.
+
+Format EXACTLY like this:
+
+MNEMONIC 1:
+[Word for first letter] [Word for second letter] [Word for third letter]...
+Description: [Provide a 1-2 sentence explanation about how this mnemonic helps remember "${text}"]
+
+MNEMONIC 2:
+[Different words...]
+Description: [Different explanation...]
+
+MNEMONIC 3:
+[Different words...]
+Description: [Different explanation...]
+
+Make them creative, memorable, and easy to visualize. Use vivid, concrete words.`,
     
-    story: `Create a memorable story mnemonic for: "${text}". 
-    Weave the letters or concepts into a short, vivid, and memorable narrative. 
-    Make it engaging and easy to visualize. 
-    Keep it concise (2-4 sentences).`,
+    story: `Create 3 different story mnemonics for: "${text}".
+
+For each story:
+1. Weave the letters or concepts into a SHORT, vivid narrative (2-3 sentences max)
+2. Make it visual and memorable
+3. Add a brief note on why it works
+
+Format EXACTLY like this:
+STORY 1:
+[Your vivid 2-3 sentence story]
+Why it works: [Brief explanation]
+
+STORY 2:
+[Different story]
+Why it works: [Different explanation]
+
+STORY 3:
+[Different story]
+Why it works: [Different explanation]`,
     
-    rhyme: `Create a rhyming mnemonic for: "${text}". 
-    Make it catchy, rhythmic, and easy to remember. 
-    Use simple rhyme schemes and memorable phrases. 
-    Keep it short and punchy.`,
+    rhyme: `Create 3 different rhyming mnemonics for: "${text}".
+
+For each rhyme:
+1. Make it catchy and rhythmic (2-4 lines)
+2. Use simple rhyme schemes
+3. Add a note on memorability
+
+Format EXACTLY like this:
+RHYME 1:
+[Your catchy rhyme]
+Memorability tip: [Brief note]
+
+RHYME 2:
+[Different rhyme]
+Memorability tip: [Different note]
+
+RHYME 3:
+[Different rhyme]
+Memorability tip: [Different note]`,
     
-    chunking: `Break down "${text}" into memorable chunks using the chunking method. 
-    Group the information into smaller, meaningful pieces that are easier to remember. 
-    Provide the chunked version with clear separations and memory aids.`
+    chunking: `Create 3 different chunking strategies for: "${text}".
+
+For each strategy:
+1. Break the information into memorable chunks
+2. Show clear separations
+3. Explain the chunking logic
+
+Format EXACTLY like this:
+STRATEGY 1:
+[Chunked version with separators]
+Logic: [Why these chunks work]
+
+STRATEGY 2:
+[Different chunking]
+Logic: [Different reasoning]
+
+STRATEGY 3:
+[Different chunking]
+Logic: [Different reasoning]`
   };
   
   return prompts[modeType];
@@ -77,15 +144,15 @@ const callOpenRouterAPI = async (prompt: string, modelIndex: number = 0): Promis
       messages: [
         {
           role: 'system',
-          content: 'You are a creative mnemonic expert. Create memorable, helpful mnemonics that make learning easy and fun. Keep responses concise and focused.'
+          content: 'You are a creative mnemonic expert. Create memorable, helpful mnemonics that make learning easy and fun. Always follow the exact format requested. Keep responses concise and focused.'
         },
         {
           role: 'user',
           content: prompt
         }
       ],
-      temperature: 0.8,
-      max_tokens: 500
+      temperature: 0.9,
+      max_tokens: 1000
     };
 
     const response = await fetch(API_URL, {
