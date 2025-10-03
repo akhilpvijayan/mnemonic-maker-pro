@@ -10,7 +10,7 @@ import ErrorMessage from '../components/ErrorMessage';
 import GitHubStarButton from '../components/GitHubStarButton';
 import GitHubStarModal from '../components/GitHubStarModal';
 
-const GITHUB_REPO_URL = 'https://github.com/yourusername/mnemonic-maker'; // Update with your repo
+const GITHUB_REPO_URL = 'https://github.com/akhilpvijayan/mnemonic-maker-pro';
 const GENERATION_COUNT_KEY = 'mnemonic_generation_count';
 const STAR_MODAL_SHOWN_KEY = 'star_modal_shown';
 
