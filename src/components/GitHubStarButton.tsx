@@ -11,10 +11,10 @@ const GitHubStarButton: React.FC<GitHubStarButtonProps> = ({ repoUrl }) => {
   };
 
   return (
-    <button onClick={handleClick} className="github-star-btn">
-      <Github size={18} />
-      <Star size={18} />
-      <span>Star</span>
+    <button onClick={handleClick} className="github-star-btn-elegant">
+      <Github size={16} />
+      <span className="github-star-text">Star on GitHub</span>
+      <Star size={16} className="github-star-icon" />
     </button>
   );
 };

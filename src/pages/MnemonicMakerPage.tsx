@@ -9,8 +9,10 @@ import ThemeToggle from '../components/ThemeToggle';
 import ErrorMessage from '../components/ErrorMessage';
 import GitHubStarButton from '../components/GitHubStarButton';
 import GitHubStarModal from '../components/GitHubStarModal';
+import ProductHuntButton from '../components/ProductHuntButton';
 
 const GITHUB_REPO_URL = 'https://github.com/akhilpvijayan/mnemonic-maker-pro';
+const PRODUCTHUNT_URL = 'https://www.producthunt.com/posts/your-product';
 const GENERATION_COUNT_KEY = 'mnemonic_generation_count';
 const STAR_MODAL_SHOWN_KEY = 'star_modal_shown';
 
@@ -78,9 +80,8 @@ const MnemonicMakerPage: React.FC = () => {
   return (
     <div className={`app ${darkMode ? 'dark' : 'light'}`}>
       <div className="container">
-        {/* Header Controls */}
-        <div className="header-controls">
-          <GitHubStarButton repoUrl={GITHUB_REPO_URL} />
+        {/* Theme Toggle Only in Header */}
+        <div className="header-controls-minimal">
           <ThemeToggle darkMode={darkMode} onToggle={() => setDarkMode(!darkMode)} />
         </div>
 
@@ -91,6 +92,14 @@ const MnemonicMakerPage: React.FC = () => {
           </div>
           <h1>Mnemonic Maker Pro</h1>
           <p className="subtitle">AI-Powered Memory Enhancement - Memorize Faster & Better</p>
+          
+          {/* Elegant GitHub Star Button Below Subtitle */}
+          <div className="github-badge-wrapper">
+            <GitHubStarButton repoUrl={GITHUB_REPO_URL} />
+          </div>
+          <div className="producthunt-badge-wrapper">
+            <ProductHuntButton productUrl={PRODUCTHUNT_URL} />
+          </div>
         </div>
 
         {/* Main Card */}
