@@ -42,11 +42,11 @@ export const getMnemonicPrompt = (text: string, modeType: MnemonicMode): string 
 
 For each mnemonic:
 
-Take each letter from the sequence of "${text}" (e.g., for "ABCDE", use A, B, C, D, E).
+Take first letter from each word of "${text}" (e.g., for "Asad Bdf Cfw Dfw Ewer", use A, B, C, D, E).
 
-Create a memorable single word for each letter.
+Create a memorable single word for each letter combining the above selected letters.
 
-Add a brief description explaining how each word connects to the original sequence or concept.
+Add a brief description explaining how each letter connects to the original sequence or concept.
 
 Format EXACTLY like this:
 

@@ -93,11 +93,9 @@ const MnemonicMakerPage: React.FC = () => {
           <h1>Mnemonic Maker Pro</h1>
           <p className="subtitle">AI-Powered Memory Enhancement - Memorize Faster & Better</p>
           
-          {/* Elegant GitHub Star Button Below Subtitle */}
-          <div className="github-badge-wrapper">
+          {/* Elegant Badges Side by Side */}
+          <div className="social-badges-wrapper">
             <GitHubStarButton repoUrl={GITHUB_REPO_URL} />
-          </div>
-          <div className="producthunt-badge-wrapper">
             <ProductHuntButton productUrl={PRODUCTHUNT_URL} />
           </div>
         </div>
