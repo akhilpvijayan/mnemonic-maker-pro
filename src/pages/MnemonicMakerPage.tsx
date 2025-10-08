@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Brain, Zap, RefreshCw, Lightbulb, BookOpen, Sparkles as SparklesIcon, Target } from 'lucide-react';
+import { Brain, Zap, RefreshCw, Lightbulb, BookOpen, Sparkles as SparklesIcon, Target, User, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { MnemonicMode } from '../types';
 import { generateMnemonic } from '../services/openRouterService';
+import { useAuth } from '../contexts/AuthContext';
 import ModeSelector from '../components/ModeSelector';
 import InputSection from '../components/InputSection';
 import ResultCard from '../components/ResultCard';
@@ -25,6 +27,10 @@ const MnemonicMakerPage: React.FC = () => {
   const [error, setError] = useState('');
   const [generationCount, setGenerationCount] = useState(0);
   const [showStarModal, setShowStarModal] = useState(false);
+  
+  // Auth hooks
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   // Load generation count on mount
   useEffect(() => {
@@ -80,8 +86,24 @@ const MnemonicMakerPage: React.FC = () => {
   return (
     <div className={`app ${darkMode ? 'dark' : 'light'}`}>
       <div className="container">
-        {/* Theme Toggle Only in Header */}
+        {/* Header with Login/User Menu */}
         <div className="header-controls-minimal">
+          {user ? (
+            <div className="user-menu">
+              <button className="user-avatar" onClick={() => navigate('/saved')}>
+                <User size={20} />
+                <span>{user.email?.split('@')[0]}</span>
+              </button>
+              <button className="logout-btn" onClick={logout}>
+                <LogOut size={16} />
+              </button>
+            </div>
+          ) : (
+            <button className="login-btn" onClick={() => navigate('/login')}>
+              <User size={18} />
+              Log In
+            </button>
+          )}
           <ThemeToggle darkMode={darkMode} onToggle={() => setDarkMode(!darkMode)} />
         </div>
 
@@ -93,7 +115,7 @@ const MnemonicMakerPage: React.FC = () => {
           <h1>Mnemonic Maker Pro</h1>
           <p className="subtitle">AI-Powered Memory Enhancement - Memorize Faster & Better</p>
           
-          {/* Elegant Badges Side by Side */}
+          {/* Social Badges Side by Side */}
           <div className="social-badges-wrapper">
             <GitHubStarButton repoUrl={GITHUB_REPO_URL} />
             <ProductHuntButton productUrl={PRODUCTHUNT_URL} />
@@ -131,7 +153,7 @@ const MnemonicMakerPage: React.FC = () => {
             )}
           </button>
 
-          <ResultCard result={result} />
+          <ResultCard result={result} input={input} mode={mode} />
         </div>
 
         {/* How It Works Section */}

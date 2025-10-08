@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
-import { Copy, Check, Star } from 'lucide-react';
+import { Copy, Check, Star, Save, Bookmark, BookmarkCheck } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { saveMnemonic } from '../services/mnemonicService';
+import { useNavigate } from 'react-router-dom';
 
 interface ResultCardProps {
   result: string;
+  input: string;
+  mode: string;
 }
 
 interface ParsedMnemonic {
@@ -14,9 +19,13 @@ interface ParsedMnemonic {
   }>;
 }
 
-const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
+const ResultCard: React.FC<ResultCardProps> = ({ result, input, mode }) => {
   const [copied, setCopied] = useState<number | null>(null);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const parseResult = (text: string): ParsedMnemonic | null => {
     if (!text) return null;
@@ -70,6 +79,27 @@ const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
     setTimeout(() => setCopied(null), 2000);
   };
 
+  const handleSave = async () => {
+    if (!user) {
+      // Redirect to login with return URL
+      navigate('/login?redirect=/');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const selectedResult = allResults[selectedIndex];
+      await saveMnemonic(user.uid, input, mode, selectedResult.text);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (error) {
+      console.error('Error saving mnemonic:', error);
+      alert('Failed to save mnemonic. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   if (!result) return null;
 
   const parsed = parseResult(result);
@@ -95,29 +125,57 @@ const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
             <Star size={16} className="star-icon" />
             <span>{selectedResult.label}</span>
           </div>
-          <button 
-            onClick={() => copyToClipboard(selectedResult.text, selectedIndex)} 
-            className="copy-btn"
-          >
-            {copied === selectedIndex ? (
-              <>
-                <Check size={16} />
-                Copied!
-              </>
-            ) : (
-              <>
-                <Copy size={16} />
-                Copy
-              </>
-            )}
-          </button>
+          <div className="result-actions">
+            {/* Save Button */}
+            <button 
+              onClick={handleSave}
+              disabled={saving || saved}
+              className={`action-btn save-btn ${saved ? 'saved' : ''}`}
+              title={user ? 'Save mnemonic' : 'Login to save'}
+            >
+              {saved ? (
+                <>
+                  <BookmarkCheck size={16} />
+                  Saved!
+                </>
+              ) : saving ? (
+                <>
+                  <Bookmark size={16} className="spinning" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save size={16} />
+                  {user ? 'Save' : 'Login to Save'}
+                </>
+              )}
+            </button>
+            
+            {/* Copy Button */}
+            <button 
+              onClick={() => copyToClipboard(selectedResult.text, selectedIndex)} 
+              className="action-btn copy-btn"
+            >
+              {copied === selectedIndex ? (
+                <>
+                  <Check size={16} />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Copy size={16} />
+                  Copy
+                </>
+              )}
+            </button>
+          </div>
         </div>
         <div className="result-content">
           <p className="result-text">{selectedResult.text}</p>
           {selectedResult.description && (
-            <p className="result-description">
+            <div className="result-description">
               <strong>💡 How it helps:</strong> {selectedResult.description}
-            </p>
+            </div>
           )}
         </div>
       </div>
@@ -152,6 +210,17 @@ const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Login Prompt for Non-Logged Users */}
+      {!user && (
+        <div className="login-prompt">
+          <Bookmark size={20} />
+          <p>
+            <strong>Want to save your mnemonics?</strong> 
+            <a href="/signup"> Create a free account</a> to save unlimited mnemonics and access them from any device!
+          </p>
         </div>
       )}
     </div>
