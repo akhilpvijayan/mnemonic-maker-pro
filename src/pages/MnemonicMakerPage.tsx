@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { MnemonicMode } from '../types';
 import { generateMnemonic } from '../services/openRouterService';
 import { useAuth } from '../contexts/AuthContext';
+import { useDarkMode } from '../hooks/useDarkMode';
 import ModeSelector from '../components/ModeSelector';
 import InputSection from '../components/InputSection';
 import ResultCard from '../components/ResultCard';
@@ -12,6 +13,7 @@ import ErrorMessage from '../components/ErrorMessage';
 import GitHubStarButton from '../components/GitHubStarButton';
 import GitHubStarModal from '../components/GitHubStarModal';
 import ProductHuntButton from '../components/ProductHuntButton';
+import { LogoutModal } from '../components/LogoutModal';
 
 const GITHUB_REPO_URL = 'https://github.com/akhilpvijayan/mnemonic-maker-pro';
 const PRODUCTHUNT_URL = 'https://www.producthunt.com/posts/your-product';
@@ -19,7 +21,7 @@ const GENERATION_COUNT_KEY = 'mnemonic_generation_count';
 const STAR_MODAL_SHOWN_KEY = 'star_modal_shown';
 
 const MnemonicMakerPage: React.FC = () => {
-  const [darkMode, setDarkMode] = useState(true);
+  const { darkMode, toggleDarkMode } = useDarkMode();
   const [input, setInput] = useState('');
   const [mode, setMode] = useState<MnemonicMode>('acrostic');
   const [result, setResult] = useState('');
@@ -27,12 +29,11 @@ const MnemonicMakerPage: React.FC = () => {
   const [error, setError] = useState('');
   const [generationCount, setGenerationCount] = useState(0);
   const [showStarModal, setShowStarModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   
-  // Auth hooks
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  // Load generation count on mount
   useEffect(() => {
     const count = parseInt(localStorage.getItem(GENERATION_COUNT_KEY) || '0', 10);
     setGenerationCount(count);
@@ -52,12 +53,10 @@ const MnemonicMakerPage: React.FC = () => {
       const response = await generateMnemonic(input, mode);
       setResult(response.content);
       
-      // Increment generation count
       const newCount = generationCount + 1;
       setGenerationCount(newCount);
       localStorage.setItem(GENERATION_COUNT_KEY, newCount.toString());
 
-      // Show star modal after 3 generations (only once)
       const modalShown = localStorage.getItem(STAR_MODAL_SHOWN_KEY);
       if (newCount === 3 && !modalShown) {
         setTimeout(() => {
@@ -79,14 +78,19 @@ const MnemonicMakerPage: React.FC = () => {
     }
   };
 
-  const closeStarModal = () => {
-    setShowStarModal(false);
+  const handleLogout = () => {
+    setShowLogoutModal(true);
+  };
+
+  const confirmLogout = () => {
+    logout();
+    setShowLogoutModal(false);
+    navigate('/login');
   };
 
   return (
     <div className={`app ${darkMode ? 'dark' : 'light'}`}>
       <div className="container">
-        {/* Header with Login/User Menu */}
         <div className="header-controls-minimal">
           {user ? (
             <div className="user-menu">
@@ -94,7 +98,7 @@ const MnemonicMakerPage: React.FC = () => {
                 <User size={20} />
                 <span>{user.email?.split('@')[0]}</span>
               </button>
-              <button className="logout-btn" onClick={logout}>
+              <button className="logout-btn" onClick={handleLogout}>
                 <LogOut size={16} />
               </button>
             </div>
@@ -104,10 +108,9 @@ const MnemonicMakerPage: React.FC = () => {
               Log In
             </button>
           )}
-          <ThemeToggle darkMode={darkMode} onToggle={() => setDarkMode(!darkMode)} />
+          <ThemeToggle darkMode={darkMode} onToggle={toggleDarkMode} />
         </div>
 
-        {/* Main Header */}
         <div className="main-header">
           <div className="icon-wrapper">
             <Brain size={64} />
@@ -115,26 +118,20 @@ const MnemonicMakerPage: React.FC = () => {
           <h1>Mnemonic Maker Pro</h1>
           <p className="subtitle">AI-Powered Memory Enhancement - Memorize Faster & Better</p>
           
-          {/* Social Badges Side by Side */}
           <div className="social-badges-wrapper">
             <GitHubStarButton repoUrl={GITHUB_REPO_URL} />
             <ProductHuntButton productUrl={PRODUCTHUNT_URL} />
           </div>
         </div>
 
-        {/* Main Card */}
         <div className="main-card">
           <ModeSelector selectedMode={mode} onModeChange={setMode} />
-          
           <InputSection
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
           />
-
           <ErrorMessage message={error} />
-
-          {/* Generate Button */}
           <button
             onClick={handleGenerate}
             disabled={!input.trim() || isGenerating}
@@ -152,7 +149,6 @@ const MnemonicMakerPage: React.FC = () => {
               </>
             )}
           </button>
-
           <ResultCard result={result} input={input} mode={mode} />
         </div>
 
@@ -249,7 +245,8 @@ const MnemonicMakerPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Footer */}
+        {/* Info sections remain the same... */}
+        
         <div className="footer">
           <div className="footer-item">
             <div className="pulse-dot"></div>
@@ -266,11 +263,16 @@ const MnemonicMakerPage: React.FC = () => {
         </div>
       </div>
 
-      {/* GitHub Star Modal */}
       <GitHubStarModal 
         isOpen={showStarModal} 
-        onClose={closeStarModal}
+        onClose={() => setShowStarModal(false)}
         repoUrl={GITHUB_REPO_URL}
+      />
+
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={confirmLogout}
       />
     </div>
   );

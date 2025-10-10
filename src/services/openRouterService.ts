@@ -6,11 +6,11 @@ const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 // AI models in priority order (will try next if one fails)
 const AI_MODELS: string[] = [
-  'anthropic/claude-3.5-sonnet',
-  'openai/gpt-4-turbo',
-  'google/gemini-pro-1.5',
-  'meta-llama/llama-3.1-70b-instruct',
-  'mistralai/mistral-large'
+  'openai/gpt-oss-20b:free',
+  'nvidia/nemotron-nano-9b-v2:free',
+  'google/gemma-3n-e2b-it:free',
+  'tencent/hunyuan-a13b-instruct:free',
+  'mistralai/devstral-small-2505:free'
 ];
 
 interface OpenRouterMessage {
@@ -44,7 +44,12 @@ For each mnemonic:
 
 Take first letter from each word of "${text}" (e.g., for "Asad Bdf Cfw Dfw Ewer", use A, B, C, D, E).
 
-Create a memorable single word for each letter combining the above selected letters.
+Make it in simple english which is suitable even for a third standard studnet
+use simple vocabulary and small words
+
+Make it into a single word by taking all first characters from each word and make it a real word and simple and easy to remember
+
+like for example , colors in rainbow can be written as VIBGYOR
 
 Add a brief description explaining how each letter connects to the original sequence or concept.
 
@@ -62,7 +67,8 @@ MNEMONIC 3:
 [Different words...]
 Description: [Different explanation...]
 
-Make them creative, memorable, and easy to visualize. Use vivid, concrete words.`,
+Make them creative, memorable, and easy to visualize. Use vivid, concrete words.
+`,
     
     story: `Create 3 different story mnemonics for: "${text}".
 
