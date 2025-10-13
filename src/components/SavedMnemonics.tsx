@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useDarkMode } from '../hooks/useDarkMode';
 import { getUserMnemonics, deleteMnemonic, toggleFavorite, SavedMnemonic } from '../services/mnemonicService';
-import { Trash2, Star, RefreshCw, AlertCircle, Heart, Calendar, Copy, Check, Search, ArrowLeft } from 'lucide-react';
+import { Trash2, Star, RefreshCw, AlertCircle, Heart, Calendar, Copy, Check, Search, ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+
+const ITEMS_PER_PAGE = 9;
 
 const SavedMnemonics: React.FC = () => {
   const { user } = useAuth();
@@ -13,6 +15,7 @@ const SavedMnemonics: React.FC = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterFavorites, setFilterFavorites] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     if (user) {
@@ -22,6 +25,11 @@ const SavedMnemonics: React.FC = () => {
       setError('Please log in to view your mnemonics');
     }
   }, [user]);
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterFavorites]);
 
   const loadMnemonics = async () => {
     if (!user) {
@@ -91,12 +99,56 @@ const SavedMnemonics: React.FC = () => {
     }
   };
 
+  // Filter mnemonics
   const filteredMnemonics = mnemonics.filter(m => {
     const matchesSearch = m.input.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          m.result.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFavorite = !filterFavorites || m.favorite;
     return matchesSearch && matchesFavorite;
   });
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredMnemonics.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const currentMnemonics = filteredMnemonics.slice(startIndex, endIndex);
+
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push('...');
+        pages.push(currentPage - 1);
+        pages.push(currentPage);
+        pages.push(currentPage + 1);
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+
+    return pages;
+  };
 
   if (loading) {
     return (
@@ -198,60 +250,112 @@ const SavedMnemonics: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="saved-mnemonics-grid">
-              {filteredMnemonics.map((mnemonic) => (
-                <div key={mnemonic.id} className="saved-mnemonic-card">
-                  <div className="saved-card-header">
-                    <span className={`saved-mode-badge ${mnemonic.mode.toLowerCase()}`}>
-                      {mnemonic.mode}
-                    </span>
-                    <div className="saved-card-actions">
-                      <button
-                        onClick={() => handleToggleFavorite(mnemonic.id!, mnemonic.favorite)}
-                        className={`saved-action-btn saved-favorite-btn ${mnemonic.favorite ? 'active' : ''}`}
-                        title={mnemonic.favorite ? 'Remove from favorites' : 'Add to favorites'}
-                      >
-                        <Star size={20} fill={mnemonic.favorite ? 'currentColor' : 'none'} />
-                      </button>
-                      <button
-                        onClick={() => handleCopy(mnemonic.result, mnemonic.id!)}
-                        className={`saved-action-btn saved-copy-btn ${copiedId === mnemonic.id ? 'copied' : ''}`}
-                        title="Copy mnemonic"
-                      >
-                        {copiedId === mnemonic.id ? <Check size={20} /> : <Copy size={20} />}
-                      </button>
-                      <button
-                        onClick={() => handleDelete(mnemonic.id!)}
-                        className="saved-action-btn saved-delete-btn"
-                        title="Delete mnemonic"
-                      >
-                        <Trash2 size={20} />
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="saved-card-content">
-                    <div className="saved-content-section">
-                      <p className="saved-content-label">Input</p>
-                      <div className="saved-content-text saved-input-text">
-                        {mnemonic.input}
+            <>
+              <div className="saved-mnemonics-grid">
+                {currentMnemonics.map((mnemonic) => (
+                  <div key={mnemonic.id} className="saved-mnemonic-card">
+                    <div className="saved-card-header">
+                      <span className={`saved-mode-badge ${mnemonic.mode.toLowerCase()}`}>
+                        {mnemonic.mode}
+                      </span>
+                      <div className="saved-card-actions">
+                        <button
+                          onClick={() => handleToggleFavorite(mnemonic.id!, mnemonic.favorite)}
+                          className={`saved-action-btn saved-favorite-btn ${mnemonic.favorite ? 'active' : ''}`}
+                          title={mnemonic.favorite ? 'Remove from favorites' : 'Add to favorites'}
+                        >
+                          <Star size={20} fill={mnemonic.favorite ? 'currentColor' : 'none'} />
+                        </button>
+                        <button
+                          onClick={() => handleCopy(mnemonic.result, mnemonic.id!)}
+                          className={`saved-action-btn saved-copy-btn ${copiedId === mnemonic.id ? 'copied' : ''}`}
+                          title="Copy mnemonic"
+                        >
+                          {copiedId === mnemonic.id ? <Check size={20} /> : <Copy size={20} />}
+                        </button>
+                        <button
+                          onClick={() => handleDelete(mnemonic.id!)}
+                          className="saved-action-btn saved-delete-btn"
+                          title="Delete mnemonic"
+                        >
+                          <Trash2 size={20} />
+                        </button>
                       </div>
                     </div>
-                    <div className="saved-content-section">
-                      <p className="saved-content-label">Mnemonic</p>
-                      <div className="saved-content-text saved-result-text">
-                        {mnemonic.result}
+
+                    <div className="saved-card-content">
+                      <div className="saved-content-section">
+                        <p className="saved-content-label">Input</p>
+                        <div className="saved-content-text saved-input-text">
+                          {mnemonic.input}
+                        </div>
+                      </div>
+                      <div className="saved-content-section">
+                        <p className="saved-content-label">Mnemonic</p>
+                        <div className="saved-content-text saved-result-text">
+                          {mnemonic.result}
+                        </div>
                       </div>
                     </div>
+
+                    <div className="saved-card-footer">
+                      <Calendar size={14} />
+                      <span>{formatDate(mnemonic.createdAt)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="pagination-container">
+                  <button
+                    onClick={() => goToPage(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="pagination-btn pagination-prev"
+                    aria-label="Previous page"
+                  >
+                    <ChevronLeft size={20} />
+                    <span>Previous</span>
+                  </button>
+
+                  <div className="pagination-numbers">
+                    {getPageNumbers().map((page, index) => (
+                      typeof page === 'number' ? (
+                        <button
+                          key={index}
+                          onClick={() => goToPage(page)}
+                          className={`pagination-number ${currentPage === page ? 'active' : ''}`}
+                        >
+                          {page}
+                        </button>
+                      ) : (
+                        <span key={index} className="pagination-ellipsis">
+                          {page}
+                        </span>
+                      )
+                    ))}
                   </div>
 
-                  <div className="saved-card-footer">
-                    <Calendar size={14} />
-                    <span>{formatDate(mnemonic.createdAt)}</span>
-                  </div>
+                  <button
+                    onClick={() => goToPage(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="pagination-btn pagination-next"
+                    aria-label="Next page"
+                  >
+                    <span>Next</span>
+                    <ChevronRight size={20} />
+                  </button>
                 </div>
-              ))}
-            </div>
+              )}
+
+              {/* Page Info */}
+              <div className="pagination-info">
+                <p>
+                  Showing {startIndex + 1}-{Math.min(endIndex, filteredMnemonics.length)} of {filteredMnemonics.length}
+                </p>
+              </div>
+            </>
           )}
         </main>
       </div>
