@@ -6,11 +6,11 @@ const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
 // AI models in priority order (will try next if one fails)
 const AI_MODELS: string[] = [
-  'openai/gpt-oss-20b:free',
   'nvidia/nemotron-nano-9b-v2:free',
   'google/gemma-3n-e2b-it:free',
   'tencent/hunyuan-a13b-instruct:free',
-  'mistralai/devstral-small-2505:free'
+  'mistralai/devstral-small-2505:free',
+  'openai/gpt-oss-20b:free'
 ];
 
 interface OpenRouterMessage {
@@ -181,8 +181,9 @@ const callOpenRouterAPI = async (prompt: string, modelIndex: number = 0): Promis
     }
 
     const data: OpenRouterResponse = await response.json();
-    
-    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+    console.log("🔍 OpenRouter response data:", data);
+
+    if (!data.choices || !data.choices[0] || !data.choices[0].message || data?.choices[0]?.message?.content == "") {
       // Try next model
       return callOpenRouterAPI(prompt, modelIndex + 1);
     }
