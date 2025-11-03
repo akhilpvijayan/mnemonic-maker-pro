@@ -124,7 +124,7 @@ const UserProfile: React.FC = () => {
               </div>
 
               {/* Stats Grid */}
-              <div className="profile-stats-grid">
+              {/* <div className="profile-stats-grid">
                 <div className="profile-stat-card">
                   <div className="stat-icon-wrapper stat-blue">
                     <BookMarked size={24} />
@@ -154,7 +154,7 @@ const UserProfile: React.FC = () => {
                     <p className="stat-label">Current Streak</p>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Quick Actions */}
@@ -183,7 +183,7 @@ const UserProfile: React.FC = () => {
             <div className="profile-settings-card">
               <h3 className="card-title">Settings</h3>
               <div className="settings-list">
-                <button className="setting-item">
+                {/* <button className="setting-item">
                   <div className="setting-left">
                     <Shield size={20} />
                     <span>Privacy & Security</span>
@@ -205,7 +205,7 @@ const UserProfile: React.FC = () => {
                     <span>Account Settings</span>
                   </div>
                   <span className="setting-arrow">›</span>
-                </button>
+                </button> */}
 
                 <button onClick={handleLogout} className="setting-item setting-danger">
                   <div className="setting-left">

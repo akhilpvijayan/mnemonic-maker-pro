@@ -94,7 +94,7 @@ const MnemonicMakerPage: React.FC = () => {
         <div className="header-controls-minimal">
           {user ? (
             <div className="user-menu">
-              <button className="user-avatar" onClick={() => navigate('/profile')}>
+              <button className="user-avatar">
                 <User size={20} />
                 <span className="hide-on-mobile">{user.email?.split('@')[0]}</span>
               </button>
