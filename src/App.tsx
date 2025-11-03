@@ -8,6 +8,7 @@ import SignupPage from './components/SignupPage';
 import './App.css';
 import TermsOfService from './pages/TermsOfService';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import UserProfile from './components/UserProfile';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
@@ -24,6 +25,8 @@ function App() {
           <Route path="/" element={<MnemonicMakerPage />} />
           <Route path="/terms" element={<TermsOfService />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/saved" element={<SavedMnemonics />} />
+          <Route path="/profile" element={<UserProfile />} />
           <Route
             path="/saved"
             element={

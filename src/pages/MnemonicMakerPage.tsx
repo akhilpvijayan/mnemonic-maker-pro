@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Brain, Zap, RefreshCw, Lightbulb, BookOpen, Sparkles as SparklesIcon, Target, User, LogOut } from 'lucide-react';
+import { Brain, Zap, RefreshCw, Lightbulb, BookOpen, Sparkles as SparklesIcon, Target, User, LogOut, BookMarked } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { MnemonicMode } from '../types';
 import { generateMnemonic } from '../services/openRouterService';
@@ -30,7 +30,7 @@ const MnemonicMakerPage: React.FC = () => {
   const [generationCount, setGenerationCount] = useState(0);
   const [showStarModal, setShowStarModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  
+
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -52,7 +52,7 @@ const MnemonicMakerPage: React.FC = () => {
     try {
       const response = await generateMnemonic(input, mode);
       setResult(response.content);
-      
+
       const newCount = generationCount + 1;
       setGenerationCount(newCount);
       localStorage.setItem(GENERATION_COUNT_KEY, newCount.toString());
@@ -94,9 +94,13 @@ const MnemonicMakerPage: React.FC = () => {
         <div className="header-controls-minimal">
           {user ? (
             <div className="user-menu">
-              <button className="user-avatar" onClick={() => navigate('/saved')}>
+              <button className="user-avatar" onClick={() => navigate('/profile')}>
                 <User size={20} />
-                <span>{user.email?.split('@')[0]}</span>
+                <span className="hide-on-mobile">{user.email?.split('@')[0]}</span>
+              </button>
+              <button className="saved-mnemonics-btn" onClick={() => navigate('/saved')}>
+                <BookMarked size={18} />
+                <span className="hide-on-mobile">Saved</span>
               </button>
               <button className="logout-btn" onClick={handleLogout}>
                 <LogOut size={16} />
@@ -117,7 +121,7 @@ const MnemonicMakerPage: React.FC = () => {
           </div>
           <h1>Mnemonic Maker Pro</h1>
           <p className="subtitle">AI-Powered Memory Enhancement - Memorize Faster & Better</p>
-          
+
           <div className="social-badges-wrapper">
             <GitHubStarButton repoUrl={GITHUB_REPO_URL} />
             <ProductHuntButton productUrl={PRODUCTHUNT_URL} />
@@ -246,7 +250,7 @@ const MnemonicMakerPage: React.FC = () => {
         </div>
 
         {/* Info sections remain the same... */}
-        
+
         <div className="footer">
           <div className="footer-item">
             <div className="pulse-dot"></div>
@@ -263,8 +267,8 @@ const MnemonicMakerPage: React.FC = () => {
         </div>
       </div>
 
-      <GitHubStarModal 
-        isOpen={showStarModal} 
+      <GitHubStarModal
+        isOpen={showStarModal}
         onClose={() => setShowStarModal(false)}
         repoUrl={GITHUB_REPO_URL}
       />
