@@ -16,7 +16,7 @@ import ProductHuntButton from '../components/ProductHuntButton';
 import { LogoutModal } from '../components/LogoutModal';
 
 const GITHUB_REPO_URL = 'https://github.com/akhilpvijayan/mnemonic-maker-pro';
-const PRODUCTHUNT_URL = 'https://www.producthunt.com/posts/your-product';
+const PRODUCTHUNT_URL = 'https://www.producthunt.com/products/mnemonic-maker-pro';
 const GENERATION_COUNT_KEY = 'mnemonic_generation_count';
 const STAR_MODAL_SHOWN_KEY = 'star_modal_shown';
 
